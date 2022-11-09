@@ -1,6 +1,8 @@
 import Api from 'xBuilder/helpers/Api/Api';
 import { StateCreator, StoreApi } from 'zustand';
 
+import { StoreState } from '../';
+
 export interface ContentSlice {
   content: {
     readonly data: { [key: string]: any } | null;
@@ -10,6 +12,7 @@ export interface ContentSlice {
   };
   api?: Api;
 }
+
 const createContentSlice:
   | StateCreator<ContentSlice>
   | StoreApi<ContentSlice> = (set, get) => {
@@ -29,6 +32,18 @@ const createContentSlice:
 
 export function resetContentSlice(get: StoreApi<ContentSlice>['getState']) {
   return { content: { ...get().content, data: null, error: null } };
+}
+
+export function applyContentInitializer(
+  state: StoreState,
+  initialState: StoreState,
+) {
+  return {
+    content: {
+      ...state.content,
+      ...initialState.content,
+    },
+  };
 }
 
 export default createContentSlice as (

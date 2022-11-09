@@ -53,38 +53,40 @@ export default function Edit() {
           content={content?.description || 'Document description'}
         />
       </Head>
-      <RenderedView />
+      <div className="container mx-auto py-4">
+        <RenderedView />
+      </div>
     </>
   );
 }
 
-export const getServerSideProps: GetServerSideProps<{
-  initialStoreState?: { [key: string]: any };
-}> = async ({ req, res, query }) => {
-  const path =
-    typeof query.document === 'string'
-      ? `/${query.document}`
-      : query.document?.join('/') || '';
-  const zustandStore = initializeStore({}, req.cookies);
-  const state = zustandStore.getState();
-  const serializedState = JSON.parse(JSON.stringify(state));
-  const api = state.api;
+// export const getServerSideProps: GetServerSideProps<{
+//   initialStoreState?: { [key: string]: any };
+// }> = async ({ req, res, query }) => {
+//   const path =
+//     typeof query.document === 'string'
+//       ? `/${query.document}`
+//       : query.document?.join('/') || '';
+//   const zustandStore = initializeStore({}, req.cookies);
+//   const state = zustandStore.getState();
+//   const serializedState = JSON.parse(JSON.stringify(state));
+//   const api = state.api;
 
-  const [content, content_error] = await api.get(path);
+//   const [content, content_error] = await api.get(path);
 
-  if (content_error && !req.url?.startsWith('/_next/data')) {
-    res.statusCode = content_error.statusCode;
-  }
+//   if (content_error && !req.url?.startsWith('/_next/data')) {
+//     res.statusCode = content_error.statusCode;
+//   }
 
-  return {
-    props: {
-      initialStoreState: {
-        content: {
-          ...serializedState.content,
-          data: content || null,
-          error: content_error || null,
-        },
-      },
-    },
-  };
-};
+//   return {
+//     props: {
+//       initialStoreState: {
+//         content: {
+//           ...serializedState.content,
+//           data: content || null,
+//           error: content_error || null,
+//         },
+//       },
+//     },
+//   };
+// };

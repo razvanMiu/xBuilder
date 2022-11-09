@@ -2,14 +2,7 @@ import { NextApiRequestCookies } from 'next/dist/server/api-utils';
 import { getAuthToken } from 'xBuilder/helpers/AuthToken/AuthToken';
 import config from 'xBuilder/registry';
 
-type ApiMethod = (
-  path: string,
-  options?: {
-    cache?: any;
-    data?: any | undefined;
-    headers?: {} | undefined;
-  },
-) => Promise<unknown>;
+import { removeTrailingSlash } from '../Url/Url';
 
 const methods = ['get', 'post', 'put', 'patch', 'del'];
 
@@ -26,10 +19,6 @@ const defaultHeaders: { [key: string]: { [key: string]: any } } = {
   },
 };
 
-function removeTrailingSlash(str: string): string {
-  return str.replace(/\/+$/, '');
-}
-
 function formatUrl(path: string) {
   const { settings } = config;
 
@@ -40,12 +29,18 @@ function formatUrl(path: string) {
   return removeTrailingSlash(`${settings.internalApiPath}${adjustedPath}`);
 }
 
-export class Api {
-  [key: string]: ApiMethod | Function;
-
+export default class Api {
+  [key: string]: (
+    path: string,
+    options?: {
+      cache?: any;
+      data?: any | undefined;
+      headers?: {} | undefined;
+    },
+  ) => Promise<[any, any]>;
   constructor(nextCookies?: NextApiRequestCookies) {
     methods.forEach((method) => {
-      this[method] = (path, { data, headers = {}, ...rest } = {}) => {
+      this[method] = async (path, { data, headers = {}, ...rest } = {}) => {
         const authToken = getAuthToken(nextCookies);
         return fetch(formatUrl(path), {
           method: method.toUpperCase(),
@@ -69,5 +64,3 @@ export class Api {
     });
   }
 }
-
-export default Api;

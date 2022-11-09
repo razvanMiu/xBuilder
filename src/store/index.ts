@@ -1,3 +1,6 @@
+import { assign, mergeWith } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
+import extend from 'lodash/extend';
 import merge from 'lodash/merge';
 import { NextApiRequestCookies } from 'next/dist/server/api-utils';
 import { useEffect, useLayoutEffect, useState } from 'react';
@@ -7,10 +10,16 @@ import createContext from 'zustand/context';
 import { devtools } from 'zustand/middleware';
 import shallow from 'zustand/shallow';
 
-import createContentSlice, { ContentSlice, resetContentSlice } from './content';
-import createUserSlice, { resetUserSlice, UserSlice } from './user';
+import createContentSlice, {
+  applyContentInitializer,
+  resetContentSlice,
+} from './content';
+import createUserSlice, { applyUserInitializer, resetUserSlice } from './user';
 
-interface StoreState extends UserSlice, ContentSlice {
+import type { ContentSlice } from './content';
+import type { UserSlice } from './user';
+
+export interface StoreState extends UserSlice, ContentSlice {
   api: Api;
   reset: () => void;
   [key: string]: any;
@@ -35,6 +44,13 @@ const zustandContext = createContext<typeof store>();
 
 const applyMiddlewares = (stateCreator: StateCreator<StoreState>) =>
   devtools(stateCreator);
+
+const applyInitializer = (state: StoreState, initialState: StoreState) => {
+  return {
+    ...applyUserInitializer(state, initialState),
+    ...applyContentInitializer(state, initialState),
+  };
+};
 
 export const Provider = zustandContext.Provider;
 export const useStore: UseContextStore<StoreApi<StoreState>> = (selector) => {
@@ -66,7 +82,7 @@ export const initializeStore = (
   );
 };
 
-export function useCreateStore(serverInitialState?: Object | undefined) {
+export function useCreateStore(serverInitialState?: StoreState) {
   const [mounted, setMounted] = useState(false);
   // Server side code: For SSR & SSG, always use a new store.
   if (typeof window === 'undefined') {
@@ -89,12 +105,13 @@ export function useCreateStore(serverInitialState?: Object | undefined) {
     // states on CSR page navigation or not. I have chosen not to, but if you choose to,
     // then add `serverInitialState = getDefaultInitialState()` here.
     if (mounted && serverInitialState && isReusingStore) {
+      const state = store.getState();
       store.setState(
         {
           // re-use functions from existing store
-          ...store.getState(),
+          ...state,
           // but reset all other properties.
-          ...serverInitialState,
+          ...applyInitializer(state, serverInitialState),
         },
         true, // replace states, rather than shallow merging
       );

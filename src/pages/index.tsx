@@ -1,6 +1,7 @@
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
 import { useCallback, useMemo } from 'react';
+import Api from 'xBuilder/helpers/Api/Api';
 import Error from 'xBuilder/pages/_error';
 import config from 'xBuilder/registry';
 import { initializeStore, useStore } from 'xBuilder/store';
@@ -53,36 +54,26 @@ export default function Document() {
           content={content?.description || 'Document description'}
         />
       </Head>
-      <RenderedView />
+      <div className="container mx-auto py-4">
+        <RenderedView />
+      </div>
     </>
   );
 }
 
 export const getServerSideProps: GetServerSideProps<{
   initialStoreState?: { [key: string]: any };
-}> = async ({ req, res, query }) => {
+}> = async ({ query }) => {
   const path =
     typeof query.document === 'string'
       ? `/${query.document}`
       : query.document?.join('/') || '';
-  const zustandStore = initializeStore({}, req.cookies);
-  const state = zustandStore.getState();
-  const serializedState = JSON.parse(JSON.stringify(state));
-  const api = state.api;
-
-  const [content, content_error] = await api.get(path);
-
-  if (content_error && !req.url?.startsWith('/_next/data')) {
-    res.statusCode = content_error.statusCode;
-  }
 
   return {
     props: {
       initialStoreState: {
         content: {
-          ...serializedState.content,
-          data: content || null,
-          error: content_error || null,
+          path,
         },
       },
     },

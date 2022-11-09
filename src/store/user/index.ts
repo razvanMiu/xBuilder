@@ -1,7 +1,8 @@
 import Cookies from 'js-cookie';
-import { NextApiRequestCookies } from 'next/dist/server/api-utils';
 import Api from 'xBuilder/helpers/Api/Api';
 import { StateCreator, StoreApi } from 'zustand';
+
+import { StoreState } from '../';
 
 export interface UserSlice {
   user: {
@@ -16,11 +17,6 @@ export interface UserSlice {
   api?: Api;
 }
 
-export async function getProfile(nextCookies?: NextApiRequestCookies) {
-  const api = new Api(nextCookies);
-  return await api.get('/user/profile');
-}
-
 const createUserSlice: StateCreator<UserSlice> | StoreApi<UserSlice> = (
   set,
   get,
@@ -30,7 +26,10 @@ const createUserSlice: StateCreator<UserSlice> | StoreApi<UserSlice> = (
       profile: null,
       auth_token: null,
       getProfile: async () => {
-        set({ user: { ...get().user, profile: await getProfile() } });
+        const store = get();
+        const { api } = store;
+        const [profile] = (await api?.get('/user/profile')) || [null];
+        set({ user: { ...store.user, profile } });
       },
       setProfile: (profile) => {
         set({ user: { ...get().user, profile } });
@@ -51,8 +50,10 @@ const createUserSlice: StateCreator<UserSlice> | StoreApi<UserSlice> = (
         const store = get();
         const { api } = store;
         const { setAuthToken } = store.user;
-        const renew = await api?.post('/login/renew');
-        setAuthToken(renew.access_token);
+        const [renew] = (await api?.post('/login/renew')) || [null];
+        if (renew) {
+          setAuthToken(renew.access_token);
+        }
       },
       reset: () => {
         Cookies.remove('auth_token');
@@ -65,6 +66,18 @@ const createUserSlice: StateCreator<UserSlice> | StoreApi<UserSlice> = (
 export function resetUserSlice(get: StoreApi<UserSlice>['getState']) {
   Cookies.remove('auth_token');
   return { user: { ...get().user, profile: null, auth_token: null } };
+}
+
+export function applyUserInitializer(
+  state: StoreState,
+  initialState: StoreState,
+) {
+  return {
+    user: {
+      ...state.user,
+      ...initialState.user,
+    },
+  };
 }
 
 export default createUserSlice as (
