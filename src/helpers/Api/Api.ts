@@ -1,4 +1,4 @@
-import { ReadonlyRequestCookies } from 'next/dist/server/app-render';
+import { NextApiRequestCookies } from 'next/dist/server/api-utils';
 import { getAuthToken } from 'xBuilder/helpers/AuthToken/AuthToken';
 import config from 'xBuilder/registry';
 
@@ -40,18 +40,10 @@ function formatUrl(path: string) {
   return removeTrailingSlash(`${settings.internalApiPath}${adjustedPath}`);
 }
 
-export function getError(error: any) {
-  try {
-    return JSON.parse(error.response?.text);
-  } catch {
-    return error.response?.body || error;
-  }
-}
-
 export class Api {
   [key: string]: ApiMethod | Function;
 
-  constructor(nextCookies?: ReadonlyRequestCookies) {
+  constructor(nextCookies?: NextApiRequestCookies) {
     methods.forEach((method) => {
       this[method] = (path, { data, headers = {}, ...rest } = {}) => {
         const authToken = getAuthToken(nextCookies);
@@ -69,9 +61,9 @@ export class Api {
         }).then(async (response) => {
           const data = await response.json();
           if (response.ok) {
-            return data;
+            return [data, null];
           }
-          throw data;
+          return [null, data];
         });
       };
     });

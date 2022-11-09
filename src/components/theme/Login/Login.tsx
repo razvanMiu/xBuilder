@@ -1,4 +1,3 @@
-'use client';
 import cx from 'classnames';
 import get from 'lodash/get';
 import Link from 'next/link';

@@ -1,12 +1,11 @@
-// import Cookies from 'js-cookie';
-// import { ReadonlyRequestCookies } from 'next/dist/server/app-render';
 import Api from 'xBuilder/helpers/Api/Api';
 import { StateCreator, StoreApi } from 'zustand';
 
 export interface ContentSlice {
   content: {
-    readonly properties: { [key: string]: any } | null;
-    setProperties: (properties: { [key: string]: any } | null) => void;
+    readonly data: { [key: string]: any } | null;
+    readonly error: { [key: string]: any } | null;
+    setContentData: (data: { [key: string]: any } | null) => void;
     reset: () => void;
   };
   api?: Api;
@@ -16,19 +15,20 @@ const createContentSlice:
   | StoreApi<ContentSlice> = (set, get) => {
   return {
     content: {
-      properties: null,
-      setProperties: (properties) => {
-        set({ content: { ...get().content, properties } });
+      data: null,
+      error: null,
+      setContentData: (data) => {
+        set({ content: { ...get().content, data } });
       },
       reset: () => {
-        set({ content: { ...get().content, properties: null } });
+        set({ content: { ...get().content, data: null } });
       },
     },
   };
 };
 
 export function resetContentSlice(get: StoreApi<ContentSlice>['getState']) {
-  return { content: { ...get().content, properties: null } };
+  return { content: { ...get().content, data: null, error: null } };
 }
 
 export default createContentSlice as (

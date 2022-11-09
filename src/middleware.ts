@@ -3,20 +3,23 @@ import { NextResponse } from 'next/server';
 
 import type { NextRequest } from 'next/server';
 
-// This function can be marked `async` if using `await` inside
 export function middleware(request: NextRequest) {
-  const requestHeaders = new Headers(request.headers);
-  requestHeaders.set('seamless-mode-path', '/api');
+  const { pathname } = request.nextUrl;
+  if (pathname.startsWith('/api')) {
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set('seamless-mode-path', '/api');
 
-  const response = NextResponse.next({
-    request: {
-      headers: requestHeaders,
-    },
-  });
+    const response = NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
 
-  return response;
+    return response;
+  }
+  return NextResponse.next();
 }
 
 export const config = {
-  matcher: '/api/:path*',
+  matcher: ['/:path*'],
 };

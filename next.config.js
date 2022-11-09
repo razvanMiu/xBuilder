@@ -1,7 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  reactStrictMode: true,
+  trailingSlash: false,
   experimental: {
-    appDir: true,
+    appDir: false,
+    optimizeCss: process.env.NODE_ENV === 'production',
   },
   async rewrites() {
     return [
@@ -10,8 +13,12 @@ const nextConfig = {
         destination: `${process.env.NEXT_PUBLIC_EXTERNAL_API_PATH}/:path*`,
       },
       {
-        source: '/:path*/edit',
+        source: '/:document*/edit',
         destination: '/edit',
+      },
+      {
+        source: '/:document*',
+        destination: '/',
       },
     ];
   },

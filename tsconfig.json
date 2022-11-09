@@ -2,7 +2,7 @@
   "compilerOptions": {
     "paths": {
       "xBuilder/*": ["./src/*"],
-      "xBuilder/registry": ["./src/registry"]
+      "xBuilder/registry": ["./src/registry"],
     },
     "target": "es5",
     "lib": ["dom", "dom.iterable", "esnext"],

@@ -44,6 +44,14 @@ class Config {
     this._data.blocks = blocks;
   }
 
+  get views() {
+    return this._data.views;
+  }
+
+  set views(views) {
+    this._data.views = views;
+  }
+
   get components() {
     return this._data.components;
   }

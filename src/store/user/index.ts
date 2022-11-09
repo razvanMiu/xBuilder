@@ -1,5 +1,5 @@
 import Cookies from 'js-cookie';
-import { ReadonlyRequestCookies } from 'next/dist/server/app-render';
+import { NextApiRequestCookies } from 'next/dist/server/api-utils';
 import Api from 'xBuilder/helpers/Api/Api';
 import { StateCreator, StoreApi } from 'zustand';
 
@@ -16,7 +16,7 @@ export interface UserSlice {
   api?: Api;
 }
 
-export async function getProfile(nextCookies?: ReadonlyRequestCookies) {
+export async function getProfile(nextCookies?: NextApiRequestCookies) {
   const api = new Api(nextCookies);
   return await api.get('/user/profile');
 }

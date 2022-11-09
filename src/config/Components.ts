@@ -1,13 +1,13 @@
-import React from 'react';
+import dynamic from 'next/dynamic';
 
 const components = {
   header: {
-    component: React.lazy(
+    component: dynamic(
       () => import('xBuilder/components/theme/Header/DefaultHeader'),
     ),
   },
   footer: {
-    component: React.lazy(
+    component: dynamic(
       () => import('xBuilder/components/theme/Footer/DefaultFooter'),
     ),
   },

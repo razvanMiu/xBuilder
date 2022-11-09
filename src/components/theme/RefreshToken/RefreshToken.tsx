@@ -1,4 +1,3 @@
-'use client';
 import jwtDecode from 'jwt-decode';
 import { usePathname, useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef } from 'react';
@@ -17,8 +16,6 @@ export default function RefreshToken() {
   const logout = useCallback(() => {
     router.push(`/logout?return_url=${pathname}`);
   }, [router, pathname]);
-
-  console.log(store);
 
   useEffect(() => {
     if (auth_token && profile) {

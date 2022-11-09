@@ -7,9 +7,19 @@
     display: contents;
   }
 
+  #__next {
+    @apply flex flex-col flex-1 h-full;
+  }
+
   html {
     font-family: Raleway, system-ui, sans-serif;
+    @apply h-full;
   }
+
+  body {
+    @apply h-full;
+  }
+
   h1 {
     @apply text-5xl;
   }

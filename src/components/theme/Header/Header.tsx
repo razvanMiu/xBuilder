@@ -1,4 +1,3 @@
-'use client';
 import config from 'xBuilder/registry';
 
 export default function Header(props: any) {
